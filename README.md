@@ -30,10 +30,7 @@ const { MASK_DATA_SEVERITY_PARTIAL } = require('@infotorg/mask-data-severity-lev
 const infotorgFormat = format.combine(
   axios({ meta: true, errorStack: true }),
   description({ description: 'Your default description' }),
-  // Configure filter format with predefined application options
-  // filter(appFilterOptions),
-
-  // Manual configuration of filter format
+  // Configuration for the "filter" format
   filter({
     target: 'meta',
     blackList: [
@@ -44,10 +41,7 @@ const infotorgFormat = format.combine(
     ],
   }),
 
-  // Configure mask format with predefined application options
-  // mask(appMaskOptions),
-
-  // Manual configuration of mask format
+  // Configuration for the "mask" format
   mask({
     severity: MASK_DATA_SEVERITY_PARTIAL,
     target: 'meta',
