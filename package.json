@@ -1,6 +1,6 @@
 {
   "name": "@infotorg/winston-log-formats",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Infotorg log formats for Winston logger",
   "main": "dist/index.js",
   "engines": {
@@ -21,8 +21,10 @@
     "axios",
     "filter",
     "mask",
+    "requestId",
     "mask data",
     "Request Trace ID",
+    "Request ID",
     "description",
     "request",
     "response",
