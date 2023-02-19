@@ -1,6 +1,6 @@
 {
   "name": "@infotorg/winston-log-formats",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Infotorg log formats for Winston logger",
   "main": "dist/index.js",
   "engines": {
@@ -11,6 +11,8 @@
     "lint": "eslint --ext .js .",
     "format": "prettier --write --list-different .",
     "lintfix": "npm run format && npm run lint -- --fix",
+    "prepublish": "npm run build",
+    "prebuild": "npm run test",
     "pretest": "npm run lintfix",
     "test": "jest"
   },
