@@ -17,7 +17,8 @@ $ npm install @infotorg/winston-log-formats
 ```
 
 ## Usage
-> The order of combining formats is important. 
+
+> The order of combining formats is important.
 > Formats are applying in the same order as they passed into `combine` function. See example below.
 
 ```javascript
