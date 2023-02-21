@@ -1,14 +1,26 @@
-const MaskData = require('@coder.ua/mask-data').default;
+const { MaskData, MaskDataOptions } = require('@coder.ua/mask-data');
 const get = require('lodash.get');
 const { format } = require('logform');
 const { MASK_DATA_SEVERITY_OPEN, MASK_DATA_SEVERITY_PARTIAL } = require('@infotorg/mask-data-severity-levels');
 
 /**
+ * FormatOptions
+ *
+ * @typedef {{severity: (string|string), fullyMaskedFields: string[], whiteList: string[], maskOptions: MaskDataOptions, target: string}} FormatOptions
+ */
+
+/**
+ * MaskOptionsPojo
+ *
+ * @typedef {{maskNull: boolean, maskString: boolean, maxMaskedChars: number, maskWith: string, unmaskedEndChars: number, maskNumber: boolean, unmaskedStartChars: number, maskUndefined: boolean, maskBoolean: boolean}} MaskOptionsPojo
+ */
+
+/**
  * Generates options for the MaskData library depending on the severity level.
  *
  * @param {string} severityLevel. Available values: 'open', 'partial', 'strict'. See @infotorg/mask-data-severity-levels package: https://github.com/infotorg/mask-data-severity-levels.
- * @param {{}|{maskNull: boolean, maskString: boolean, maxMaskedChars: number, maskWith: string, unmaskedEndChars: number, maskNumber: boolean, unmaskedStartChars: number, maskUndefined: boolean, maskBoolean: boolean}} [options={}] Options for mask data compatible with @coder.ua/mask-data. Documentation: https://github.com/coderua/mask-data#default-options
- * @returns {{maskNull: boolean, maskString: boolean, maxMaskedChars: number, maskWith: string, unmaskedEndChars: number, maskNumber: boolean, unmaskedStartChars: number, maskUndefined: boolean, maskBoolean: boolean}}
+ * @param {{}|MaskOptionsPojo} [options={}] Options for mask data compatible with @coder.ua/mask-data. Documentation: https://github.com/coderua/mask-data#default-options
+ * @returns {MaskDataOptions}
  */
 const logMaskOptions = (severityLevel, options = {}) => {
   const rewriteOptions = typeof options !== 'object' && options !== null ? {} : options;
@@ -33,12 +45,21 @@ const logMaskOptions = (severityLevel, options = {}) => {
         }
       : {}; // For open and strict severity
 
-  return {
-    ...opts,
-    ...rewriteOptions,
-  };
+  const maskOptions = new MaskDataOptions(opts);
+
+  if (rewriteOptions && (rewriteOptions instanceof MaskDataOptions || Object.keys(rewriteOptions).length)) {
+    // Merge options with the default ones
+    maskOptions.options = rewriteOptions instanceof MaskDataOptions ? rewriteOptions.options : rewriteOptions;
+  }
+
+  return maskOptions;
 };
 
+/**
+ * Default mask options.
+ *
+ * @type {Readonly<{severity: (string|string), fullyMaskedFields: string[], whiteList: string[], maskOptions: MaskDataOptions, target: string}>}
+ */
 const defaultOptions = Object.freeze({
   // Severity of the data masking. Values are taken from the "@infotorg/mask-data-severity-levels" package. See https://github.com/infotorg/mask-data-severity-levels
   severity: MASK_DATA_SEVERITY_PARTIAL,
@@ -46,18 +67,20 @@ const defaultOptions = Object.freeze({
   target: 'meta',
   // Fields that won't be masked
   whiteList: [],
+  // Fields that will be masked completely even if they are in the whiteList
+  fullyMaskedFields: [],
   // Masking options for the MaskData library.
   // Documentation here: https://github.com/coderua/mask-data#default-options
-  maskOptions: {},
+  maskOptions: logMaskOptions(MASK_DATA_SEVERITY_PARTIAL),
 });
 
 /**
  * Merges provided configuration with a default one.
  *
- * @param {{severity: string, whiteList: [], maskOptions: {}, target: string}} options
- * @returns {{severity: string, whiteList: Set, maskOptions: {}, target: string}}
+ * @param {{severity: string, fullyMaskedFields: [], whiteList: [], maskOptions: {}|MaskDataOptions, target: string}} options
+ * @returns {{severity: string, fullyMaskedFields: Set, whiteList: Set, maskOptions: MaskDataOptions, target: string}}
  */
-const mergeOptionsWithDefaults = (options = {}) => {
+const mergeOptions = (options = {}) => {
   const mergedOptions = {
     ...defaultOptions,
     ...(options && typeof options === 'object' ? options : {}),
@@ -68,13 +91,12 @@ const mergeOptionsWithDefaults = (options = {}) => {
       mergedOptions[name] = defaultOptions[name];
     }
 
-    if (name === 'whiteList') {
+    if (name === 'whiteList' || name === 'fullyMaskedFields') {
       mergedOptions[name] = mergedOptions[name] instanceof Set ? mergedOptions[name] : new Set(mergedOptions[name]);
     }
 
     if (name === 'maskOptions') {
-      mergedOptions[name] =
-        Object.keys(mergedOptions[name]).length > 0 ? mergedOptions[name] : logMaskOptions(mergedOptions.severity);
+      mergedOptions[name] = logMaskOptions(mergedOptions.severity, options.maskOptions);
     }
   });
 
@@ -90,13 +112,14 @@ const mergeOptionsWithDefaults = (options = {}) => {
  *
  * @param {string} [opts.severity='partial'] Severity of the data masking. Values are taken from the "@infotorg/mask-data-severity-levels" package. See https://github.com/infotorg/mask-data-severity-levels. For 'open' severity level no masking will be applied.
  * @param {string} [opts.target='meta'] Target property for masking in the info object
- * @param {[]} [opts.target='whiteList'] Fields that won't be masked
- * @param {{}} [opts.target='maskOptions'] Masking options for the MaskData library. Documentation here: https://github.com/coderua/mask-data#default-options
+ * @param {[]} [opts.whiteList=[]] Fields that won't be masked
+ * @param {[]} [opts.fullyMaskedFields=[]] // Fields that will be masked completely even if they are in the whiteList
+ * @param {{}|MaskOptionsPojo} [opts.maskOptions={}] Masking options for the MaskData library. Documentation here: https://github.com/coderua/mask-data#default-options
  *
  * @type {Function}
  */
 module.exports = format((info = {}, opts = { ...defaultOptions }) => {
-  const { severity, target, whiteList, maskOptions } = mergeOptionsWithDefaults(opts);
+  const { severity, target, fullyMaskedFields, whiteList, maskOptions } = mergeOptions(opts);
 
   const data = { ...get(info, target, {}) };
 
@@ -110,11 +133,25 @@ module.exports = format((info = {}, opts = { ...defaultOptions }) => {
     return { ...info, [target]: data };
   }
 
+  // Prepare mask instances
   const maskData = new MaskData(maskOptions);
+  const maskDataCompletely = new MaskData({
+    ...maskOptions.options,
+    ...{
+      // First N symbols that won't be masked
+      unmaskedStartChars: 0,
+      // Last N symbols that won't be masked
+      unmaskedEndChars: 0,
+      // Mask data with type 'string'
+      maskString: true,
+      // Mask data with type 'number'
+      maskNumber: true,
+    },
+  });
 
   const mask = (input, path) => {
-    if (whiteList.has(path)) {
-      // No masking for the white listed fields
+    if (!fullyMaskedFields.has(path) && whiteList.has(path)) {
+      // No masking for the white listed fields that are not in the fullyMaskedFields list
       return input;
     }
 
@@ -128,7 +165,7 @@ module.exports = format((info = {}, opts = { ...defaultOptions }) => {
       return result;
     }
 
-    return maskData.mask(input);
+    return fullyMaskedFields.has(path) ? maskDataCompletely.mask(input) : maskData.mask(input);
   };
 
   // Masking data starting from root elements

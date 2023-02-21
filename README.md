@@ -523,8 +523,8 @@ The `filter` format removes provided `blackList` fields in the log message:
 
 It accepts the following options:
 
-- **target**: Target property for filtering in the info object. Default is `meta`.
-- **blackList**: Fields that will be removed from the info object. It supports `dot notation` in the field names. Default is `[]`. Example: `['req.data.password', 'req.headers.token', 'res.data.sensitive']`.
+- **target**: Target property for filtering in the info object. Default value is `meta`.
+- **blackList**: Fields that will be removed from the info object. It supports `dot notation` in the field names. Default value is `[]`. Example: `['req.data.password', 'req.headers.token', 'res.data.sensitive']`.
 
 > Dot notation is one way to access a property of an object. To use dot notation, write the name of the object, followed by a dot (.), followed by the name of the property.
 
@@ -612,10 +612,11 @@ const logger = createLogger({
 
 It accepts the following options:
 
-- **severity**: Severity for masking data in a log. Default is `partial`. Possible values are `open`, `partial`, and `strict`. For more details, see [mask data severity levels](https://github.com/infotorg/mask-data-severity-levels) file.
-- **target**: property name in the log to mask. Default is `meta`.
-- **whiteList**: Fields that won't be masked. Default is `[]` that means all fields will be masked.
-- **maskOptions**: Masking options for the [MaskData](https://github.com/coderua/mask-data) library. Default is `{}`.
+- **severity**: Severity for masking data in a log. Default value is `partial`. Possible values are `open`, `partial`, and `strict`. For more details, see [mask data severity levels](https://github.com/infotorg/mask-data-severity-levels) file.
+- **target**: property name in the log to mask. Default value is `meta`. It supports `dot notation` in the field names. Example: `meta.req`.
+- **whiteList**: Fields that won't be masked. It supports `dot notation` in the field names. Default value is `[]` that means all fields will be masked. Example: `['req.data.username']`.
+- **fullyMaskedFields**: Fields that will be masked completely even if they are in the `whiteList`. It supports `dot notation` in the field names. Default value is `[]`. Example: `['req.data.password']`.
+- **maskOptions**: Masking options for the [MaskData](https://github.com/coderua/mask-data) library. Default value is `{}`.
 
 ### Mask format usage
 
@@ -630,7 +631,10 @@ const info = mask().transform(
     message: 'Test',
     meta: {
       req: {
-        data: { sensitive: 'your sensitive data' },
+        data: {
+          sensitive: 'your sensitive data',
+          password: 'super-secret-passwd',
+        },
         headers: {
           Accept: 'application/json, text/plain, */*',
           'User-Agent': 'axios/1.3.3',
@@ -696,6 +700,7 @@ const info = mask().transform(
 
       // ...
     ],
+    fullyMaskedFields: ['req.data.password'],
   }
 );
 
@@ -703,7 +708,7 @@ console.log(info);
 // { message: 'Test',
 //   meta:
 //    { req:
-//      { data: { sensitive: 'yo***************ta' },
+//      { data: { sensitive: 'yo***************ta', password: '****************' },
 //          headers:
 //           { Accept: 'application/json, text/plain, */*',
 //             'User-Agent': 'ax********.0',
