@@ -436,5 +436,56 @@ describe('Tests "mask" Log format', () => {
         res: { status: 200, statusText: 'OK' },
       });
     });
+
+    test('it should not use invalid values from "whiteList" fields opts', () => {
+      const data = {
+        message: 'Test',
+        meta: {
+          req: {
+            data: { sensitive: 'your sensitive data' },
+            headers: { Accept: 'application/json, text/plain, */*', 'User-Agent': 'axios/0.25.0' },
+            method: 'get',
+            requestStartedAt: 1675770391875,
+            url: 'http://non-existent-domain-for-sure.com',
+          },
+          res: {
+            errno: -3008,
+            code: 'ENOTFOUND',
+            stack: 'Error: getaddrinfo ENOTFOUND non-existent-domain-for-sure.com',
+            syscall: 'getaddrinfo',
+            hostname: 'non-existent-domain-for-sure.com',
+            address: '1.2.3.4',
+            port: 80,
+            status: null,
+          },
+        },
+      };
+
+      const info = maskLogFormat().transform(data, {
+        target: 'meta',
+        severity: MASK_DATA_SEVERITY_PARTIAL,
+        whiteList: ['', null, undefined, 0, false, true, 'req.url', '.req', 'res.'],
+      });
+
+      expect(info.meta).toStrictEqual({
+        req: {
+          data: { sensitive: 'yo***************ta' },
+          headers: { Accept: 'ap**************************/*', 'User-Agent': 'ax********.0' },
+          method: 'get',
+          requestStartedAt: 1675770391875,
+          url: 'http://non-existent-domain-for-sure.com',
+        },
+        res: {
+          address: '1.***.4',
+          code: 'EN*****ND',
+          errno: -3008,
+          hostname: 'no**************************om',
+          port: 80,
+          stack: 'Er**************************om',
+          status: null,
+          syscall: 'ge*******fo',
+        },
+      });
+    });
   });
 });

@@ -2,6 +2,7 @@ const { MaskData, MaskDataOptions } = require('@coder.ua/mask-data');
 const get = require('lodash.get');
 const { format } = require('logform');
 const { MASK_DATA_SEVERITY_OPEN, MASK_DATA_SEVERITY_PARTIAL } = require('@infotorg/mask-data-severity-levels');
+const { parseFields } = require('./utils/parse-fields');
 
 /**
  * FormatOptions
@@ -92,7 +93,7 @@ const mergeOptions = (options = {}) => {
     }
 
     if (name === 'whiteList' || name === 'fullyMaskedFields') {
-      mergedOptions[name] = mergedOptions[name] instanceof Set ? mergedOptions[name] : new Set(mergedOptions[name]);
+      mergedOptions[name] = parseFields(mergedOptions[name]);
     }
 
     if (name === 'maskOptions') {

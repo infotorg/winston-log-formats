@@ -1,6 +1,7 @@
 const get = require('lodash.get');
 const unset = require('lodash.unset');
 const { format } = require('logform');
+const { parseFields } = require('./utils/parse-fields');
 
 const defaultOptions = Object.freeze({
   // Target property for replacing data in the info object
@@ -27,7 +28,7 @@ const mergeOptionsWithDefaults = (options = {}) => {
     }
 
     if (name === 'blackList') {
-      mergedOptions[name] = mergedOptions[name] instanceof Set ? mergedOptions[name] : new Set(mergedOptions[name]);
+      mergedOptions[name] = parseFields(mergedOptions[name]);
     }
   });
 

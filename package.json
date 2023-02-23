@@ -1,6 +1,6 @@
 {
   "name": "@infotorg/winston-log-formats",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Infotorg log formats for Winston logger",
   "main": "dist/index.js",
   "engines": {
