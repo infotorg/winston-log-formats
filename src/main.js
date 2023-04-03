@@ -3,11 +3,12 @@ const description = require('./description');
 const filter = require('./filter');
 const mask = require('./mask');
 const requestId = require('./request-id');
+const trackId = require('./track-id');
 
 /**
  * Infotorg logger formats for Winston.
  *
- * @type {{axios: Function, description: Function, filter: Function, mask: Function, requestId: Function }}
+ * @type {{axios: Function, description: Function, filter: Function, mask: Function, requestId: Function , trackId: Function }}
  */
 module.exports = {
   axios,
@@ -15,4 +16,5 @@ module.exports = {
   filter,
   mask,
   requestId,
+  trackId,
 };
