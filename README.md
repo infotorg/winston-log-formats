@@ -7,13 +7,14 @@ Infotorg log formats for Winston logger.
 - [Filter](#filter)
 - [Mask](#mask)
 - [Request ID](#request-id)
+- [Track ID](#track-id)
 
 Formats are fully compatible with [Winston](https://github.com/winstonjs/logform) and could be combined with other formats.
 
 ## Installation
 
 ```
-$ npm install @infotorg/winston-log-formats
+npm install @infotorg/winston-log-formats
 ```
 
 ## Usage
@@ -24,7 +25,7 @@ $ npm install @infotorg/winston-log-formats
 ```javascript
 const { format } = require('logform');
 // All custom Infotorg Log formats for Winston
-const { axios, description, filter, mask, requestId } = require('@infotorg/winston-log-formats');
+const { axios, description, filter, mask, requestId, trackId } = require('@infotorg/winston-log-formats');
 
 const { MASK_DATA_SEVERITY_PARTIAL } = require('@infotorg/mask-data-severity-levels');
 
@@ -87,6 +88,7 @@ const infotorgFormat = format.combine(
     ],
   }),
   requestId({ generateRequestIdFn: () => 'Your request ID' }),
+  trackId({ trackId: () => 'Your track ID' }),
   // Other finalizing formats...
   format.json()
 );
@@ -435,6 +437,7 @@ const axiosError = Object.assign(createAxiosError(message, config, code, request
 
 // Transform Axios Network Error to log message
 const error = axios().transform(
+  // Error instance (log entry)
   axiosError,
   // Options
   { meta: true }
@@ -534,6 +537,7 @@ It accepts the following options:
 const { filter } = require('@infotorg/winston-log-formats');
 
 const info = filter().transform(
+  // Log entry
   {
     level: 'info',
     message: 'Test',
@@ -749,10 +753,12 @@ It accepts the following options:
 const { requestId } = require('@infotorg/winston-log-formats');
 
 const info = requestId().transform(
+  // Log entry
   {
     level: 'info',
     message: 'my message',
   },
+  // Options
   { generateRequestIdFn: () => '123456-test-request-id' }
 );
 
@@ -767,11 +773,13 @@ console.log(info);
 const { requestId } = require('@infotorg/winston-log-formats');
 
 const info = requestId().transform(
+  // Log entry
   {
     level: 'info',
     message: 'my message',
     requestId: 'request-id-from-info',
   },
+  // Options
   { generateRequestIdFn: () => '123456-test-request-id' }
 );
 
@@ -779,6 +787,78 @@ console.log(info);
 // { level: 'info',
 //   message: 'my message',
 //   requestId: 'request-id-from-info' }
+```
+
+## Track ID
+
+The `trackId` format adds the `trackId` field to each log message. It could be used to add some tracking information to each log message.
+
+It accepts the following options:
+
+- **trackId**: As a function that generates `trackId` or exact value. If `info` object already has `trackId` property then it won't be overwritten.
+
+> Log entry `info.trackId` has a higher priority than the `opts.trackId`.
+
+```javascript
+// Use trackId option (opts.trackId) as a function to generate trackId
+const { trackId } = require('@infotorg/winston-log-formats');
+
+const info = trackId().transform(
+  // Log entry
+  {
+    level: 'info',
+    message: 'my message',
+  },
+  // Options
+  { trackId: () => '123456-test-track-id' }
+);
+
+console.log(info);
+// { level: 'info',
+//   message: 'my message',
+//   trackId: '123456-test-track-id' }
+```
+
+```javascript
+// Use info.trackId value instead of trackId option (opts.trackId)
+const { trackId } = require('@infotorg/winston-log-formats');
+
+const info = trackId().transform(
+  // Log entry
+  {
+    level: 'info',
+    message: 'my message',
+    trackId: 'track-id-from-info',
+  },
+  // Options
+  { trackId: () => '123456-test-track-id' }
+);
+
+console.log(info);
+// { level: 'info',
+//   message: 'my message',
+//   trackId: 'track-id-from-info' }
+```
+
+```javascript
+// Use info.trackId as a function instead of trackId option (opts.trackId)
+const { trackId } = require('@infotorg/winston-log-formats');
+
+const info = trackId().transform(
+  // Log entry
+  {
+    level: 'info',
+    message: 'my message',
+    trackId: () => 'track-id-from-info-fn',
+  },
+  // Options
+  { trackId: () => '123456-test-track-id' }
+);
+
+console.log(info);
+// { level: 'info',
+//   message: 'my message',
+//   trackId: 'track-id-from-info-fn' }
 ```
 
 ## Tests
