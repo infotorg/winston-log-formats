@@ -9,6 +9,18 @@ describe('Tests trackId Log format', () => {
     expect(typeof trackId() === 'object').toBe(true);
   });
 
+  test('it should use a custom name for "trackId" in the info object', () => {
+    const info = trackId().transform(
+      { message: 'Some message' },
+      { trackId: '123456-test-track-id', key: 'customTrackId' }
+    );
+
+    expect(info).toStrictEqual({
+      message: 'Some message',
+      customTrackId: '123456-test-track-id',
+    });
+  });
+
   describe('trackId as opts', () => {
     test('it should add the "trackId" in the info object when it is a value', () => {
       const info = trackId().transform({ message: 'Some message' }, { trackId: '123456-test-track-id' });
@@ -19,12 +31,18 @@ describe('Tests trackId Log format', () => {
       });
     });
 
-    test('it should add the "trackId" in the info object when it is a function', () => {
-      const info = trackId().transform({ message: 'Some message' }, { trackId: () => '123456-test-track-id' });
+    test('"trackId" function should have access to the "info" object', () => {
+      const trackIdFn = (prefix, suffix, info) => `${prefix}-${info.label}:123456-test-track-id-${suffix}`;
+
+      const info = trackId().transform(
+        { label: 'node1', message: 'Some message' },
+        { trackId: trackIdFn.bind(null, 'PREFIX', 'SUFFIX') }
+      );
 
       expect(info).toStrictEqual({
+        label: 'node1',
         message: 'Some message',
-        trackId: '123456-test-track-id',
+        trackId: 'PREFIX-node1:123456-test-track-id-SUFFIX',
       });
     });
   });
@@ -51,6 +69,22 @@ describe('Tests trackId Log format', () => {
       expect(info).toStrictEqual({
         message: 'Some message',
         trackId: 'track-id-from-info-fn',
+      });
+    });
+
+    test('"trackId" function should have access to the "info" object', () => {
+      const trackIdFn = (prefix, suffix, info) => `${prefix}-${info.label}:123456-test-track-id-${suffix}`;
+
+      const info = trackId().transform({
+        label: 'node2',
+        message: 'Some message',
+        trackId: trackIdFn.bind(null, 'PREFIX', 'SUFFIX'),
+      });
+
+      expect(info).toStrictEqual({
+        label: 'node2',
+        message: 'Some message',
+        trackId: 'PREFIX-node2:123456-test-track-id-SUFFIX',
       });
     });
 

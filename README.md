@@ -795,7 +795,8 @@ The `trackId` format adds the `trackId` field to each log message. It could be u
 
 It accepts the following options:
 
-- **trackId**: As a function that generates `trackId` or exact value. If `info` object already has `trackId` property then it won't be overwritten.
+- **trackId**: As a function that generates `trackId` or exact value. It binds `info` object as a last argument. If `info` object already has `trackId` property then it won't be overwritten.
+- **key**: Field name/key to use for the trackId in log output. Default is `trackId`.
 
 > Log entry `info.trackId` has a higher priority than the `opts.trackId`.
 
@@ -810,13 +811,57 @@ const info = trackId().transform(
     message: 'my message',
   },
   // Options
-  { trackId: () => '123456-test-track-id' }
+  { trackId: (info) => '123456-test-track-id' }
 );
 
 console.log(info);
 // { level: 'info',
 //   message: 'my message',
 //   trackId: '123456-test-track-id' }
+```
+
+```javascript
+// Use custom trackId key option (opts.key)
+const { trackId } = require('@infotorg/winston-log-formats');
+
+const info = trackId().transform(
+  // Log entry
+  {
+    level: 'info',
+    message: 'my message',
+  },
+  // Options
+  { 
+    trackId: (info) => '123456-test-track-id',
+    key: 'customTrackId'
+  }
+);
+
+console.log(info);
+// { level: 'info',
+//   message: 'my message',
+//   customTrackId: '123456-test-track-id' }
+```
+
+```javascript
+// Use trackId option (opts.trackId) as a function with access to info object to generate trackId
+const { trackId } = require('@infotorg/winston-log-formats');
+
+const info = trackId().transform(
+  // Log entry
+  {
+    level: 'info',
+    message: 'my message',
+    node: 'node1'
+  },
+  // Options
+  { trackId: (info) => `${info.node}:123456-test-track-id` }
+);
+
+console.log(info);
+// { level: 'info',
+//   message: 'my message',
+//   trackId: 'node1:123456-test-track-id' }
 ```
 
 ```javascript
@@ -831,7 +876,7 @@ const info = trackId().transform(
     trackId: 'track-id-from-info',
   },
   // Options
-  { trackId: () => '123456-test-track-id' }
+  { trackId: (info) => '123456-test-track-id' }
 );
 
 console.log(info);
@@ -849,10 +894,10 @@ const info = trackId().transform(
   {
     level: 'info',
     message: 'my message',
-    trackId: () => 'track-id-from-info-fn',
+    trackId: (info) => 'track-id-from-info-fn',
   },
   // Options
-  { trackId: () => '123456-test-track-id' }
+  { trackId: (info) => '123456-test-track-id' }
 );
 
 console.log(info);
