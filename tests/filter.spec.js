@@ -24,6 +24,21 @@ describe('Tests "filter" Log format', () => {
     expect(info).toStrictEqual(data);
   });
 
+  test(`it should return the same info object if format is disabled"`, () => {
+    const data = {
+      level,
+      message: 'Test',
+      meta: { req: { url: 'htts://example.com' } },
+    };
+    const info = filterLogFormat().transform(data, {
+      enabled: false,
+      target: 'meta',
+      blackList: ['req.url'],
+    });
+
+    expect(info).toStrictEqual(data);
+  });
+
   test(`it should return the same info object if "blackList" option is empty"`, () => {
     const data = {
       level,

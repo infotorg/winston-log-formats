@@ -4,6 +4,8 @@ const { format } = require('logform');
 const { parseFields } = require('./utils/parse-fields');
 
 const defaultOptions = Object.freeze({
+  // Toggle filter log output
+  enabled: true,
   // Target property for replacing data in the info object
   target: 'meta',
   // Field names array that will be removed from the info object
@@ -13,8 +15,8 @@ const defaultOptions = Object.freeze({
 /**
  * Merges provided configuration with a default one.
  *
- * @param {{blackList: [], target: string}} options
- * @returns {{blackList: Set, target: string}}
+ * @param {{blackList: [], target: string, enabled: boolean}} options
+ * @returns {{blackList: Set, target: string, enabled: boolean}}
  */
 const mergeOptionsWithDefaults = (options = {}) => {
   const mergedOptions = {
@@ -41,16 +43,17 @@ const mergeOptionsWithDefaults = (options = {}) => {
  * @param {Object} info The info parameter provided to a given format represents a single log message. The object itself is mutable. Every info must have at least the level and message properties.
  * @param {{blackList: [], target: string}} opts Setting specific to the current instance of the format.
  *
+ * @param {string} [opts.enabled=true] Toggle format output.
  * @param {string} [opts.target='meta'] Target property for replacing data in the info object.
  * @param {String[]} [opts.blackList=[]] Field names array that will be removed from the info object
  *
  * @type {Function}
  */
 module.exports = format((info = {}, opts = { ...defaultOptions }) => {
-  const { target, blackList } = mergeOptionsWithDefaults(opts);
+  const { target, blackList, enabled } = mergeOptionsWithDefaults(opts);
 
-  if (blackList.size === 0) {
-    // There is no fields to remove, so we return the info object
+  if (enabled === false || blackList.size === 0) {
+    // Format is disabled or there is no fields to remove, so we return the info object
     return info;
   }
 

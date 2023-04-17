@@ -21,6 +21,14 @@ describe('Tests trackId Log format', () => {
     });
   });
 
+  test('it should NOT add "trackId" when the format is disabled in opts', () => {
+    const info = trackId().transform({ message: 'Some message' }, { trackId: '123456-test-track-id', enabled: false });
+
+    expect(info).toStrictEqual({
+      message: 'Some message',
+    });
+  });
+
   describe('trackId as opts', () => {
     test('it should add the "trackId" in the info object when it is a value', () => {
       const info = trackId().transform({ message: 'Some message' }, { trackId: '123456-test-track-id' });

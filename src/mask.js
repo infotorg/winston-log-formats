@@ -59,9 +59,11 @@ const logMaskOptions = (severityLevel, options = {}) => {
 /**
  * Default mask options.
  *
- * @type {Readonly<{severity: (string|string), fullyMaskedFields: string[], whiteList: string[], maskOptions: MaskDataOptions, target: string}>}
+ * @type {Readonly<{enabled: boolean, severity: (string|string), fullyMaskedFields: string[], whiteList: string[], maskOptions: MaskDataOptions, target: string}>}
  */
 const defaultOptions = Object.freeze({
+  // Enable/disable the format
+  enabled: true,
   // Severity of the data masking. Values are taken from the "@infotorg/mask-data-severity-levels" package. See https://github.com/infotorg/mask-data-severity-levels
   severity: MASK_DATA_SEVERITY_PARTIAL,
   // Target property for masking in the info object
@@ -78,8 +80,8 @@ const defaultOptions = Object.freeze({
 /**
  * Merges provided configuration with a default one.
  *
- * @param {{severity: string, fullyMaskedFields: [], whiteList: [], maskOptions: {}|MaskDataOptions, target: string}} options
- * @returns {{severity: string, fullyMaskedFields: Set, whiteList: Set, maskOptions: MaskDataOptions, target: string}}
+ * @param {{enabled: boolean, severity: string, fullyMaskedFields: [], whiteList: [], maskOptions: {}|MaskDataOptions, target: string}} options
+ * @returns {{enabled: boolean, severity: string, fullyMaskedFields: Set, whiteList: Set, maskOptions: MaskDataOptions, target: string}}
  */
 const mergeOptions = (options = {}) => {
   const mergedOptions = {
@@ -88,7 +90,7 @@ const mergeOptions = (options = {}) => {
   };
 
   Object.keys(defaultOptions).forEach((name) => {
-    if (!mergedOptions[name]) {
+    if (mergedOptions[name] === undefined || mergedOptions[name] === null || mergedOptions[name] === '') {
       mergedOptions[name] = defaultOptions[name];
     }
 
@@ -111,6 +113,7 @@ const mergeOptions = (options = {}) => {
  * @param {Object} [info={}] The info parameter provided to a given format represents a single log message. The object itself is mutable. Every info must have at least the level and message properties.
  * @param {{severity: string, target: string, whiteList: [], maskOptions: {}}|undefined} [opts={severity: 'open', target: 'meta', whiteList: [], maskOptions: {}] Setting specific to the current instance of the format.
  *
+ * @param {string} [opts.enabled=true] Enable/disable the format
  * @param {string} [opts.severity='partial'] Severity of the data masking. Values are taken from the "@infotorg/mask-data-severity-levels" package. See https://github.com/infotorg/mask-data-severity-levels. For 'open' severity level no masking will be applied.
  * @param {string} [opts.target='meta'] Target property for masking in the info object
  * @param {[]} [opts.whiteList=[]] Fields that won't be masked
@@ -120,7 +123,12 @@ const mergeOptions = (options = {}) => {
  * @type {Function}
  */
 module.exports = format((info = {}, opts = { ...defaultOptions }) => {
-  const { severity, target, fullyMaskedFields, whiteList, maskOptions } = mergeOptions(opts);
+  const { enabled, severity, target, fullyMaskedFields, whiteList, maskOptions } = mergeOptions(opts);
+
+  if (!enabled) {
+    // Format is disabled, so we return the info object
+    return info;
+  }
 
   const data = { ...get(info, target, {}) };
 

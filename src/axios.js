@@ -117,6 +117,7 @@ const extractMeta = (data, reqOrResKey, whiteListFields) => {
 };
 
 const defaultOptions = Object.freeze({
+  enabled: true,
   // Description for a request
   requestDescription: 'Axios request',
   // Description for a response
@@ -146,6 +147,7 @@ const defaultOptions = Object.freeze({
  *
  * @param {Object} [opts={meta: false, metaKey: 'meta', requestDescription: 'Axios request', responseDescription: 'Axios response', errorDescription: 'Axios error', stack: false}] Setting specific options to the current instance of the format. Example: { headers: true, meta: true, metaKey: 'meta', requestDescription: 'Axios request', responseDescription: 'Axios response', errorDescription: 'Axios error', stack: true }
  *
+ * @param {string} [opts.enabled=true] Toggle axios format output.
  * @param {string} [opts.requestDescription='Axios request'] Description for a Request.
  * @param {string} [opts.responseDescription='Axios response'] Description for a Response.
  * @param {string} [opts.errorDescription='Axios error'] Description for an Error.
@@ -159,6 +161,11 @@ module.exports = format((axiosInfo = {}, opts = { ...defaultOptions }) => {
   if (!axiosInfo || typeof axiosInfo !== 'object' || Object.keys(axiosInfo).length === 0) {
     // This is not a log object
     return {};
+  }
+
+  if (opts && opts.enabled === false) {
+    // Format is disabled, so we return the info object
+    return axiosInfo;
   }
 
   if (!isAxiosError(axiosInfo) && !isAxiosResponse(axiosInfo) && !isAxiosRequest(axiosInfo)) {

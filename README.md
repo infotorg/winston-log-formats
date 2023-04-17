@@ -30,7 +30,11 @@ const { axios, description, filter, mask, requestId, trackId } = require('@infot
 const { MASK_DATA_SEVERITY_PARTIAL } = require('@infotorg/mask-data-severity-levels');
 
 const infotorgFormat = format.combine(
-  axios({ meta: true, errorStack: true }),
+  axios({ 
+    enabled: true,
+    meta: true, 
+    errorStack: true,
+  }),
   description({ description: 'Your default description' }),
   // Configuration for the "filter" format
   filter({
@@ -104,10 +108,22 @@ The `axios` format performs the following actions with the `info` object
 4. Add response time to the log message if `requestStartedAt` property is set. Which can be done by using [axios interceptors](https://axios-http.com/docs/interceptors).
 5. Adds a result to the `meta` property (or any other that is set in the `metaKey` option).
 
+It accepts the following options:
+
+- **enabled**: Enable/disable axios format output. If set to `false` then it just pass through the info object and do nothing. Default value is `true`.
+- **requestDescription**: Description for a Request. Default value is `Axios request`.
+- **responseDescription**: Description for a Response. Default value is `Axios response`.
+- **errorDescription**: Description for an Error. Default value is `Axios error`.
+- **meta**: Enable/disable including meta information about request/response/error. Default value is `false`.
+- **metaKey**: Key name for meta property. Default value is `meta`.
+- **stack**: If true, then error stack trace will be included in the meta. Default value is `false`.
+
+
 > **IMPORTANT!** It should be applied as one of the first Infotorg custom formats in the combine pipeline.
 > Because it creates a proper structure for the next formats. Before `filter`, `mask` and other finalizing formats like `errors` and `json`.
 
 > Most convenient using this format together with axios [interceptors](https://axios-http.com/docs/interceptors). See example below.
+
 
 ```javascript
 const axios = require('axios');
@@ -526,6 +542,7 @@ The `filter` format removes provided `blackList` fields in the log message:
 
 It accepts the following options:
 
+- **enabled**: Enable/disable filter format output. Default value is `true`.
 - **target**: Target property for filtering in the info object. Default value is `meta`.
 - **blackList**: Fields that will be removed from the info object. It supports `dot notation` in the field names. Default value is `[]`. Example: `['req.data.password', 'req.headers.token', 'res.data.sensitive']`.
 
@@ -558,7 +575,7 @@ const info = filter().transform(
     },
   },
   // Manual options
-  { target: 'meta', blackList: ['body.sensitive', 'headers', 'requestStartedAt'] }
+  { enabled: true, target: 'meta', blackList: ['body.sensitive', 'headers', 'requestStartedAt'] }
 );
 
 console.log(info);
@@ -573,6 +590,16 @@ console.log(info);
 ## Mask
 
 The `mask` format masks sensitive data in the log message depends on provided options.
+
+It accepts the following options:
+
+- **enabled**: Enable/disable filter format output. Default value is `true`.
+- **severity**: Severity for masking data in a log. Default value is `partial`. Possible values are `open`, `partial`, and `strict`. For more details, see [mask data severity levels](https://github.com/infotorg/mask-data-severity-levels) file.
+- **target**: property name in the log to mask. Default value is `meta`. It supports `dot notation` in the field names. Example: `meta.req`.
+- **whiteList**: Fields that won't be masked. It supports `dot notation` in the field names. Default value is `[]` that means all fields will be masked. Example: `['req.data.username']`.
+- **fullyMaskedFields**: Fields that will be masked completely even if they are in the `whiteList`. It supports `dot notation` in the field names. Default value is `[]`. Example: `['req.data.password']`.
+- **maskOptions**: Masking options for the [MaskData](https://github.com/coderua/mask-data) library. Default value is `{}`.
+
 
 > It should be applied as one of the last formats in the combine pipeline. After the `axios` and `filter` format but before finalizing formats like `json` and `errors`.
 
@@ -613,14 +640,6 @@ const logger = createLogger({
   // Other logger options...
 });
 ```
-
-It accepts the following options:
-
-- **severity**: Severity for masking data in a log. Default value is `partial`. Possible values are `open`, `partial`, and `strict`. For more details, see [mask data severity levels](https://github.com/infotorg/mask-data-severity-levels) file.
-- **target**: property name in the log to mask. Default value is `meta`. It supports `dot notation` in the field names. Example: `meta.req`.
-- **whiteList**: Fields that won't be masked. It supports `dot notation` in the field names. Default value is `[]` that means all fields will be masked. Example: `['req.data.username']`.
-- **fullyMaskedFields**: Fields that will be masked completely even if they are in the `whiteList`. It supports `dot notation` in the field names. Default value is `[]`. Example: `['req.data.password']`.
-- **maskOptions**: Masking options for the [MaskData](https://github.com/coderua/mask-data) library. Default value is `{}`.
 
 ### Mask format usage
 
@@ -669,6 +688,7 @@ const info = mask().transform(
   },
   // Manual options
   {
+    enabled: true,
     severity: MASK_DATA_SEVERITY_PARTIAL,
     target: 'meta',
     // Options for mask data compatible with @coder.ua/mask-data package.
@@ -795,6 +815,7 @@ The `trackId` format adds the `trackId` field to each log message. It could be u
 
 It accepts the following options:
 
+- **enabled**: Enable/disable `trackId` output. Default is `true`.
 - **trackId**: As a function that generates `trackId` or exact value. It binds `info` object as a last argument. If `info` object already has `trackId` property then it won't be overwritten.
 - **key**: Field name/key to use for the trackId in log output. Default is `trackId`.
 
@@ -811,7 +832,7 @@ const info = trackId().transform(
     message: 'my message',
   },
   // Options
-  { trackId: (info) => '123456-test-track-id' }
+  { enabled: true, trackId: (info) => '123456-test-track-id' }
 );
 
 console.log(info);
@@ -831,9 +852,9 @@ const info = trackId().transform(
     message: 'my message',
   },
   // Options
-  { 
+  {
     trackId: (info) => '123456-test-track-id',
-    key: 'customTrackId'
+    key: 'customTrackId',
   }
 );
 
@@ -852,7 +873,7 @@ const info = trackId().transform(
   {
     level: 'info',
     message: 'my message',
-    node: 'node1'
+    node: 'node1',
   },
   // Options
   { trackId: (info) => `${info.node}:123456-test-track-id` }

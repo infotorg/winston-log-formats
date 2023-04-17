@@ -17,6 +17,26 @@ describe('Tests "mask" Log format', () => {
     expect(typeof maskLogFormat() === 'object').toBe(true);
   });
 
+  test('it should return the same info object if format is disabled', () => {
+    const data = {
+      level,
+      message: 'Test',
+      meta: {
+        req: {
+          data: { sensitive: 'your sensitive data' },
+          headers: { Accept: 'application/json, text/plain, */*', 'User-Agent': 'axios/0.25.0' },
+          method: 'get',
+          requestStartedAt: 1675770391875,
+          url: 'https://example.com/',
+        },
+      },
+    };
+
+    const info = maskLogFormat().transform(data, { target: 'meta', enabled: false });
+
+    expect(info).toStrictEqual(data);
+  });
+
   describe('No masking cases', () => {
     test('it should return the same info object if "target" option is not set', () => {
       const info = maskLogFormat().transform({ level, message: 'Test' });

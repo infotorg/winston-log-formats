@@ -70,6 +70,14 @@ describe('Tests "axios" Log format', () => {
     const message = 'POST https://spin-tm-proxy.infotorg-eastnor-test.dds.evry.cloud/';
     const description = 'Axios request';
 
+    test('it should NOT add axios information when the format is disabled in opts', () => {
+      const info = axiosLogFormat().transform({ level, message: axiosRequestConfig }, { enabled: false });
+
+      expect(info.level).toBe(level);
+      expect(info.message).toStrictEqual(axiosRequestConfig);
+      expect(info.meta).toBeUndefined();
+    });
+
     test('it should NOT add axios request meta information if "meta" is disabled in opts', () => {
       const info = axiosLogFormat().transform({ level, message: axiosRequestConfig }, { meta: false });
 
