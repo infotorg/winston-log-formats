@@ -9,6 +9,20 @@ describe('Tests requestId Log format', () => {
     expect(typeof requestId() === 'object').toBe(true);
   });
 
+  test('it should NOT add "requestId" when the format is disabled in opts', () => {
+    const info = requestId().transform(
+      { message: 'Some message' },
+      {
+        enabled: false,
+        generateRequestIdFn: () => '123456-test-request-id',
+      }
+    );
+
+    expect(info).toStrictEqual({
+      message: 'Some message',
+    });
+  });
+
   test('it should add the "requestId" in the info object when it is specified in opts as a function', () => {
     const info = requestId().transform(
       { message: 'Some message' },

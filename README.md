@@ -30,9 +30,9 @@ const { axios, description, filter, mask, requestId, trackId } = require('@infot
 const { MASK_DATA_SEVERITY_PARTIAL } = require('@infotorg/mask-data-severity-levels');
 
 const infotorgFormat = format.combine(
-  axios({ 
+  axios({
     enabled: true,
-    meta: true, 
+    meta: true,
     errorStack: true,
   }),
   description({ description: 'Your default description' }),
@@ -118,12 +118,10 @@ It accepts the following options:
 - **metaKey**: Key name for meta property. Default value is `meta`.
 - **stack**: If true, then error stack trace will be included in the meta. Default value is `false`.
 
-
 > **IMPORTANT!** It should be applied as one of the first Infotorg custom formats in the combine pipeline.
 > Because it creates a proper structure for the next formats. Before `filter`, `mask` and other finalizing formats like `errors` and `json`.
 
 > Most convenient using this format together with axios [interceptors](https://axios-http.com/docs/interceptors). See example below.
-
 
 ```javascript
 const axios = require('axios');
@@ -600,7 +598,6 @@ It accepts the following options:
 - **fullyMaskedFields**: Fields that will be masked completely even if they are in the `whiteList`. It supports `dot notation` in the field names. Default value is `[]`. Example: `['req.data.password']`.
 - **maskOptions**: Masking options for the [MaskData](https://github.com/coderua/mask-data) library. Default value is `{}`.
 
-
 > It should be applied as one of the last formats in the combine pipeline. After the `axios` and `filter` format but before finalizing formats like `json` and `errors`.
 
 ```javascript
@@ -766,6 +763,7 @@ The `requestId` format adds the `requestId` field to each log message.
 
 It accepts the following options:
 
+- **enabled**: Enable/disable requestId format output. Default value is `true`.
 - **generateRequestIdFn**: As a function that generates requestId. If info object already has `requestId` property then it won't be overwritten.
 
 ```javascript
