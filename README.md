@@ -764,7 +764,7 @@ It accepts the following options:
 
 - **enabled**: Enable/disable `trackId` output. Default is `true`.
 - **trackId**: As a function that generates `trackId` or exact value. It binds `info` object as a last argument. If `info` object already has `trackId` property then it won't be overwritten.
-- **key**: Field name/key to use for the trackId in log output. Default is `trackId`.
+- **key**: Field name/key to use for the trackId in the info object and log output. Default is `trackId`.
 
 > Log entry `info.trackId` has a higher priority than the `opts.trackId`.
 
@@ -797,12 +797,10 @@ const info = trackId().transform(
   {
     level: 'info',
     message: 'my message',
+    requestId: (info) => '123456-test-track-id',
   },
   // Options
-  {
-    trackId: (info) => '123456-test-track-id',
-    key: 'requestId',
-  }
+  { key: 'requestId' }
 );
 
 console.log(info);

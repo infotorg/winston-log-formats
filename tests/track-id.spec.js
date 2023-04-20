@@ -9,18 +9,6 @@ describe('Tests trackId Log format', () => {
     expect(typeof trackId() === 'object').toBe(true);
   });
 
-  test('it should use a custom name for "trackId" in the info object', () => {
-    const info = trackId().transform(
-      { message: 'Some message' },
-      { trackId: '123456-test-track-id', key: 'customTrackId' }
-    );
-
-    expect(info).toStrictEqual({
-      message: 'Some message',
-      customTrackId: '123456-test-track-id',
-    });
-  });
-
   test('it should NOT add "trackId" when the format is disabled in opts', () => {
     const info = trackId().transform({ message: 'Some message' }, { trackId: '123456-test-track-id', enabled: false });
 
@@ -51,6 +39,18 @@ describe('Tests trackId Log format', () => {
         label: 'node1',
         message: 'Some message',
         trackId: 'PREFIX-node1:123456-test-track-id-SUFFIX',
+      });
+    });
+
+    test('it should use a custom name for "trackId" in the info object', () => {
+      const info = trackId().transform(
+        { message: 'Some message' },
+        { requestId: '123456-test-track-id', key: 'requestId' }
+      );
+
+      expect(info).toStrictEqual({
+        message: 'Some message',
+        requestId: '123456-test-track-id',
       });
     });
   });
@@ -93,6 +93,18 @@ describe('Tests trackId Log format', () => {
         label: 'node2',
         message: 'Some message',
         trackId: 'PREFIX-node2:123456-test-track-id-SUFFIX',
+      });
+    });
+
+    test('it should use a custom name for "trackId" in the info object', () => {
+      const info = trackId().transform(
+        { message: 'Some message', requestId: '123456-test-track-id' },
+        { key: 'requestId' }
+      );
+
+      expect(info).toStrictEqual({
+        message: 'Some message',
+        requestId: '123456-test-track-id',
       });
     });
 
