@@ -8,7 +8,7 @@ describe('Test formats exports', () => {
   });
 
   test('it should export all formats', () => {
-    const expectedFormats = ['axios', 'description', 'filter', 'mask', 'requestId', 'trackId'];
+    const expectedFormats = ['axios', 'description', 'filter', 'mask', 'trackId'];
 
     expect(exportedFormats).toEqual(expectedFormats);
   });
