@@ -2,19 +2,17 @@ const axios = require('./axios');
 const description = require('./description');
 const filter = require('./filter');
 const mask = require('./mask');
-const requestId = require('./request-id');
 const trackId = require('./track-id');
 
 /**
  * Infotorg logger formats for Winston.
  *
- * @type {{axios: Function, description: Function, filter: Function, mask: Function, requestId: Function , trackId: Function }}
+ * @type {{axios: Function, description: Function, filter: Function, mask: Function, trackId: Function }}
  */
 module.exports = {
   axios,
   description,
   filter,
   mask,
-  requestId,
   trackId,
 };

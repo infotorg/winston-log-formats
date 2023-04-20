@@ -3,6 +3,7 @@ const { format } = require('logform');
 /**
  * function trackId (info)
  * Returns a new instance of the trackId Format which adds the specified `opts.trackId` in the message.
+ * Can be used to add TrackId, RequestId to the log message.
  *
  * @param {Object} [info={}] The info parameter provided to a given format represents a single log message. The object itself is mutable. Every info must have at least the level and message properties.
  * @param {Object|undefined} [opts={}] Setting specific to the current instance of the format.
@@ -31,7 +32,11 @@ const trackId = format((info, opts = {}) => {
     return info;
   }
 
-  info[key] = typeof trackId === 'function' ? trackId.bind(this, info)() : trackId;
+  const id = typeof trackId === 'function' ? trackId.bind(this, info)() : trackId;
+
+  if ((typeof id === 'string' || typeof id === 'number') && id !== '') {
+    info[key] = id;
+  }
 
   return info;
 });

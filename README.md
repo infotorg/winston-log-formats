@@ -6,7 +6,6 @@ Infotorg log formats for Winston logger.
 - [Description](#description)
 - [Filter](#filter)
 - [Mask](#mask)
-- [Request ID](#request-id)
 - [Track ID](#track-id)
 
 Formats are fully compatible with [Winston](https://github.com/winstonjs/logform) and could be combined with other formats.
@@ -91,8 +90,7 @@ const infotorgFormat = format.combine(
       // ...
     ],
   }),
-  requestId({ generateRequestIdFn: () => 'Your request ID' }),
-  trackId({ trackId: () => 'Your track ID' }),
+  trackId({ trackId: (info) => 'Your track ID or requests ID', key: 'trackId' }),
   // Other finalizing formats...
   format.json()
 );
@@ -757,59 +755,10 @@ console.log(info);
 //          statusText: 'Not Found' } } }
 ```
 
-## Request ID
-
-The `requestId` format adds the `requestId` field to each log message.
-
-It accepts the following options:
-
-- **enabled**: Enable/disable requestId format output. Default value is `true`.
-- **generateRequestIdFn**: As a function that generates requestId. If info object already has `requestId` property then it won't be overwritten.
-
-```javascript
-// Use generateRequestIdFn option to generate requestId
-const { requestId } = require('@infotorg/winston-log-formats');
-
-const info = requestId().transform(
-  // Log entry
-  {
-    level: 'info',
-    message: 'my message',
-  },
-  // Options
-  { generateRequestIdFn: () => '123456-test-request-id' }
-);
-
-console.log(info);
-// { level: 'info',
-//   message: 'my message',
-//   requestId: '123456-test-request-id' }
-```
-
-```javascript
-// Use info.requestId instead of generateRequestIdFn option
-const { requestId } = require('@infotorg/winston-log-formats');
-
-const info = requestId().transform(
-  // Log entry
-  {
-    level: 'info',
-    message: 'my message',
-    requestId: 'request-id-from-info',
-  },
-  // Options
-  { generateRequestIdFn: () => '123456-test-request-id' }
-);
-
-console.log(info);
-// { level: 'info',
-//   message: 'my message',
-//   requestId: 'request-id-from-info' }
-```
-
 ## Track ID
 
 The `trackId` format adds the `trackId` field to each log message. It could be used to add some tracking information to each log message.
+Can be used to add TrackId, RequestId to the log message.
 
 It accepts the following options:
 
@@ -840,7 +789,7 @@ console.log(info);
 ```
 
 ```javascript
-// Use custom trackId key option (opts.key)
+// Use custom trackId key option (opts.key) => requestId
 const { trackId } = require('@infotorg/winston-log-formats');
 
 const info = trackId().transform(
@@ -852,14 +801,14 @@ const info = trackId().transform(
   // Options
   {
     trackId: (info) => '123456-test-track-id',
-    key: 'customTrackId',
+    key: 'requestId',
   }
 );
 
 console.log(info);
 // { level: 'info',
 //   message: 'my message',
-//   customTrackId: '123456-test-track-id' }
+//   requestId: '123456-test-track-id' }
 ```
 
 ```javascript

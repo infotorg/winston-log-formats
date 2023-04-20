@@ -97,7 +97,7 @@ describe('Tests trackId Log format', () => {
     });
 
     test.each([null, undefined, false, '', 0])(
-      'it should NOT add the "trackId" in the info object when it is falsy: %p',
+      'it should NOT add the "trackId" in the info object when it is empty or not a string and not a number: %p',
       (input) => {
         const info = trackId().transform({ message: 'Some message' }, { trackId: input });
 
