@@ -1,5 +1,6 @@
 const { format } = require('logform');
 const { LEVEL, MESSAGE } = require('triple-beam');
+const { isObject } = require('./utils/is-object');
 
 const isAxiosError = (info) => {
   return (
@@ -116,6 +117,11 @@ const extractMeta = (data, reqOrResKey, whiteListFields) => {
   return result;
 };
 
+/**
+ * Default axios format options.
+ *
+ * @type {Readonly<{stack: boolean, errorDescription: string, responseDescription: string, meta: boolean, metaKey: string, requestDescription: string, enabled: boolean}>}
+ */
 const defaultOptions = Object.freeze({
   enabled: true,
   // Description for a request
@@ -158,12 +164,15 @@ const defaultOptions = Object.freeze({
  * @returns {Function}
  */
 module.exports = format((axiosInfo = {}, opts = { ...defaultOptions }) => {
-  if (!axiosInfo || typeof axiosInfo !== 'object' || Object.keys(axiosInfo).length === 0) {
+  if (!axiosInfo || isObject(axiosInfo) === false || Object.keys(axiosInfo).length === 0) {
     // This is not a log object
     return {};
   }
 
-  if (opts && opts.enabled === false) {
+  const options = isObject(opts) && Object.keys(opts).length ? { ...defaultOptions, ...opts } : { ...defaultOptions };
+  const { enabled, metaKey } = options;
+
+  if (!enabled) {
     // Format is disabled, so we return the info object
     return axiosInfo;
   }
@@ -172,10 +181,6 @@ module.exports = format((axiosInfo = {}, opts = { ...defaultOptions }) => {
     // Not an axios Error/Request/Response
     return axiosInfo;
   }
-
-  const options = Object.keys(opts).length ? { ...defaultOptions, ...opts } : { ...defaultOptions };
-
-  const { metaKey } = options;
 
   // Initialize result log object
   const info = {

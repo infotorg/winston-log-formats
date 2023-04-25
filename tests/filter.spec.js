@@ -28,7 +28,7 @@ describe('Tests "filter" Log format', () => {
     const data = {
       level,
       message: 'Test',
-      meta: { req: { url: 'htts://example.com' } },
+      meta: { req: { url: 'https://example.com' } },
     };
     const info = filterLogFormat().transform(data, {
       enabled: false,
@@ -43,7 +43,7 @@ describe('Tests "filter" Log format', () => {
     const data = {
       level,
       message: 'Test',
-      meta: { req: { url: 'htts://example.com' } },
+      meta: { req: { url: 'https://example.com' } },
     };
     const info = filterLogFormat().transform(data, {
       target: 'meta',
@@ -87,7 +87,7 @@ describe('Tests "filter" Log format', () => {
         message: 'Test',
         meta: {
           req: {
-            url: 'htts://example.com',
+            url: 'https://example.com',
             method: 'post',
             headers: {
               common: { Accept: 'application/json, text/plain, */*' },
@@ -116,7 +116,7 @@ describe('Tests "filter" Log format', () => {
 
       expect(info.meta).toStrictEqual({
         req: {
-          url: 'htts://example.com',
+          url: 'https://example.com',
           method: 'post',
           headers: {
             'X-Session': '1621448702.23937#Y8dbR/s1Wi3Wep830IUp8IoZDzz',

@@ -55,7 +55,7 @@ describe('Tests "mask" Log format', () => {
       const data = {
         level,
         message: 'Test',
-        meta: { req: { url: 'htts://example.com' } },
+        meta: { req: { url: 'https://example.com' } },
       };
       const info = maskLogFormat().transform(data, {
         target: 'meta',

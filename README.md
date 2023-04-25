@@ -556,7 +556,7 @@ const info = filter().transform(
     message: 'Test',
     meta: {
       req: {
-        url: 'htts://example.com',
+        url: 'https://example.com',
         method: 'post',
         headers: {
           'X-Session': 'KdshmBaCdZdWxQ5yTpix.RCJmD7YONqSWyjhfzoP5',
@@ -578,7 +578,7 @@ console.log(info);
 // { message: 'Test',
 //   meta:
 //    { req:
-//      { url: 'htts://example.com',
+//      { url: 'https://example.com',
 //          method: 'post',
 //          body: { username: 'John' } } } }
 ```

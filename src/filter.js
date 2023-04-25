@@ -2,6 +2,7 @@ const get = require('lodash.get');
 const unset = require('lodash.unset');
 const { format } = require('logform');
 const { parseFields } = require('./utils/parse-fields');
+const { isObject } = require('./utils/is-object');
 
 const defaultOptions = Object.freeze({
   // Toggle filter log output
@@ -21,7 +22,7 @@ const defaultOptions = Object.freeze({
 const mergeOptionsWithDefaults = (options = {}) => {
   const mergedOptions = {
     ...defaultOptions,
-    ...(options && typeof options === 'object' ? options : {}),
+    ...(isObject(options) ? options : {}),
   };
 
   Object.keys(defaultOptions).forEach((name) => {
@@ -50,9 +51,9 @@ const mergeOptionsWithDefaults = (options = {}) => {
  * @type {Function}
  */
 module.exports = format((info = {}, opts = { ...defaultOptions }) => {
-  const { target, blackList, enabled } = mergeOptionsWithDefaults(opts);
+  const { target, blackList, enabled = true } = mergeOptionsWithDefaults(opts);
 
-  if (enabled === false || blackList.size === 0) {
+  if (!enabled || blackList.size === 0) {
     // Format is disabled or there is no fields to remove, so we return the info object
     return info;
   }

@@ -3,6 +3,7 @@ const get = require('lodash.get');
 const { format } = require('logform');
 const { MASK_DATA_SEVERITY_OPEN, MASK_DATA_SEVERITY_PARTIAL } = require('@infotorg/mask-data-severity-levels');
 const { parseFields } = require('./utils/parse-fields');
+const { isObject } = require('./utils/is-object');
 
 /**
  * FormatOptions
@@ -86,7 +87,7 @@ const defaultOptions = Object.freeze({
 const mergeOptions = (options = {}) => {
   const mergedOptions = {
     ...defaultOptions,
-    ...(options && typeof options === 'object' ? options : {}),
+    ...(isObject(options) ? options : {}),
   };
 
   Object.keys(defaultOptions).forEach((name) => {
@@ -123,7 +124,7 @@ const mergeOptions = (options = {}) => {
  * @type {Function}
  */
 module.exports = format((info = {}, opts = { ...defaultOptions }) => {
-  const { enabled, severity, target, fullyMaskedFields, whiteList, maskOptions } = mergeOptions(opts);
+  const { enabled = true, severity, target, fullyMaskedFields, whiteList, maskOptions } = mergeOptions(opts);
 
   if (!enabled) {
     // Format is disabled, so we return the info object

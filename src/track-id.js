@@ -1,4 +1,17 @@
 const { format } = require('logform');
+const { isObject } = require('./utils/is-object');
+
+/**
+ * Default trackId format options.
+ *
+ * @type {Readonly<{enabled: boolean, key: string}>}
+ */
+const defaultOptions = Object.freeze({
+  // Enable/disable the format
+  enabled: true,
+  // Field name/key to use for the trackId in the info object and log output.
+  key: 'trackId',
+});
 
 /**
  * function trackId (info)
@@ -15,13 +28,13 @@ const { format } = require('logform');
  * @returns {Function}
  */
 const trackId = format((info, opts = {}) => {
-  const { enabled = true } = opts;
+  const { enabled, key } =
+    isObject(opts) && Object.keys(opts).length ? { ...defaultOptions, ...opts } : { ...defaultOptions };
 
   if (!enabled) {
     return info;
   }
 
-  const { key = 'trackId' } = opts;
   let trackId;
 
   if (info[key]) {
