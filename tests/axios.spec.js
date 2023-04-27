@@ -4,6 +4,7 @@ const axiosLogFormat = require('../src/axios');
 describe('Tests "axios" Log format', () => {
   // Sat Feb 18 2023 16:49:18 GMT+0100 (Central European Standard Time)
   const requestStartedAt = 1676735337786;
+  const xTrackId = 'your-track-id';
 
   test('it should be a function', () => {
     expect(typeof axiosLogFormat === 'function').toBe(true);
@@ -24,8 +25,8 @@ describe('Tests "axios" Log format', () => {
       url: '/',
       method: 'post',
       data: {
-        product: 'hentEiersoek',
-        data: { fornavn: 'Anngrim', etternavn: 'Olsvik' },
+        product: 'someProduct',
+        data: { name: 'John', surname: 'Doe' },
       },
       timeout: 0,
       headers: {
@@ -39,17 +40,19 @@ describe('Tests "axios" Log format', () => {
         put: { 'Content-Type': 'application/x-www-form-urlencoded' },
         patch: { 'Content-Type': 'application/x-www-form-urlencoded' },
       },
-      baseURL: 'https://spin-tm-proxy.infotorg-eastnor-test.dds.evry.cloud/',
-      requestStartedAt,
-      // This property is added by axios request interceptor
+      baseURL: 'https://example.com',
       isAxiosRequest: true,
+      // This is a custom properties which added by axios request interceptor
+      requestStartedAt,
+      xTrackId: 'your-track-id',
     });
     const expectedMeta = {
       req: {
-        baseURL: 'https://spin-tm-proxy.infotorg-eastnor-test.dds.evry.cloud/',
-        data: { data: { etternavn: 'Olsvik', fornavn: 'Anngrim' }, product: 'hentEiersoek' },
+        baseURL: 'https://example.com',
+        data: { data: { surname: 'Doe', name: 'John' }, product: 'someProduct' },
         method: 'post',
         requestStartedAt,
+        xTrackId,
         timeout: 0,
         url: '/',
         headers: {
@@ -67,7 +70,7 @@ describe('Tests "axios" Log format', () => {
     };
 
     const level = 'debug';
-    const message = 'POST https://spin-tm-proxy.infotorg-eastnor-test.dds.evry.cloud/';
+    const message = 'POST https://example.com/';
     const description = 'Axios request';
 
     test('it should NOT add axios information when the format is disabled in opts', () => {
@@ -104,8 +107,8 @@ describe('Tests "axios" Log format', () => {
       expect(info.message).toBe(message);
       expect(info.meta).toStrictEqual({
         req: {
-          baseURL: 'https://spin-tm-proxy.infotorg-eastnor-test.dds.evry.cloud/',
-          data: { data: { etternavn: 'Olsvik', fornavn: 'Anngrim' }, product: 'hentEiersoek' },
+          baseURL: 'https://example.com',
+          data: { data: { surname: 'Doe', name: 'John' }, product: 'someProduct' },
           headers: {
             'Content-type': 'application/json',
             'X-Session': '1621448702.23937#Y8dbR/s1Wi3Wep830IUp8IoZDzz',
@@ -119,6 +122,7 @@ describe('Tests "axios" Log format', () => {
           },
           method: 'post',
           requestStartedAt,
+          xTrackId,
           timeout: 0,
           url: '/',
         },
@@ -152,7 +156,7 @@ describe('Tests "axios" Log format', () => {
   describe('For Response', () => {
     let res;
     const level = 'debug';
-    const message = 'POST https://spin-tm-proxy.infotorg-eastnor-test.dds.evry.cloud/ 200 OK 100ms';
+    const message = 'POST https://example.com/ 200 OK 100ms';
     const description = 'Axios response';
 
     beforeEach(() => {
@@ -163,13 +167,12 @@ describe('Tests "axios" Log format', () => {
           'content-length': '3513',
           'content-type': 'application/json',
           date: 'Mon Feb 06 2023 13:35:00 GMT',
-          'server-timing': 'dtRpid;desc="958029972"',
           connection: 'close',
         },
         config: {
           url: '/',
           method: 'post',
-          data: '{"product":"hentEiersoek","data":{"fornavn":"Anngrim","etternavn":"Olsvik"}}',
+          data: '{"product":"someProduct","data":{"name":"John","surname":"Doe"}}',
           headers: {
             Accept: 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
@@ -177,7 +180,7 @@ describe('Tests "axios" Log format', () => {
             'User-Agent': 'axios/0.21.1',
             'Content-Length': 76,
           },
-          baseURL: 'https://spin-tm-proxy.infotorg-eastnor-test.dds.evry.cloud/',
+          baseURL: 'https://example.com',
           xsrfCookieName: 'XSRF-TOKEN',
           xsrfHeaderName: 'X-XSRF-TOKEN',
           requestStartedAt,
@@ -196,8 +199,8 @@ describe('Tests "axios" Log format', () => {
       expect(info.description).toBe(description);
       expect(info.meta).toStrictEqual({
         req: {
-          baseURL: 'https://spin-tm-proxy.infotorg-eastnor-test.dds.evry.cloud/',
-          data: '{"product":"hentEiersoek","data":{"fornavn":"Anngrim","etternavn":"Olsvik"}}',
+          baseURL: 'https://example.com',
+          data: '{"product":"someProduct","data":{"name":"John","surname":"Doe"}}',
           headers: {
             Accept: 'application/json, text/plain, */*',
             'Content-Length': 76,
@@ -217,7 +220,6 @@ describe('Tests "axios" Log format', () => {
             'content-length': '3513',
             'content-type': 'application/json',
             date: 'Mon Feb 06 2023 13:35:00 GMT',
-            'server-timing': 'dtRpid;desc="958029972"',
           },
           responseTime: 100,
           status: 200,
@@ -235,8 +237,8 @@ describe('Tests "axios" Log format', () => {
       expect(info.description).toBe(description);
       expect(info[metaKey]).toStrictEqual({
         req: {
-          baseURL: 'https://spin-tm-proxy.infotorg-eastnor-test.dds.evry.cloud/',
-          data: '{"product":"hentEiersoek","data":{"fornavn":"Anngrim","etternavn":"Olsvik"}}',
+          baseURL: 'https://example.com',
+          data: '{"product":"someProduct","data":{"name":"John","surname":"Doe"}}',
           headers: {
             Accept: 'application/json, text/plain, */*',
             'Content-Length': 76,
@@ -256,7 +258,6 @@ describe('Tests "axios" Log format', () => {
             'content-length': '3513',
             'content-type': 'application/json',
             date: 'Mon Feb 06 2023 13:35:00 GMT',
-            'server-timing': 'dtRpid;desc="958029972"',
           },
           responseTime: 100,
           status: 200,
@@ -286,8 +287,8 @@ describe('Tests "axios" Log format', () => {
       expect(info.description).toBe(description);
       expect(info.meta).toStrictEqual({
         req: {
-          baseURL: 'https://spin-tm-proxy.infotorg-eastnor-test.dds.evry.cloud/',
-          data: '{"product":"hentEiersoek","data":{"fornavn":"Anngrim","etternavn":"Olsvik"}}',
+          baseURL: 'https://example.com',
+          data: '{"product":"someProduct","data":{"name":"John","surname":"Doe"}}',
           headers: {
             Accept: 'application/json, text/plain, */*',
             'Content-Length': 76,
@@ -307,7 +308,6 @@ describe('Tests "axios" Log format', () => {
             'content-length': '3513',
             'content-type': 'application/json',
             date: 'Mon Feb 06 2023 13:35:00 GMT',
-            'server-timing': 'dtRpid;desc="958029972"',
           },
           responseTime: 100,
           status: 200,

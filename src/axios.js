@@ -68,10 +68,11 @@ const getWhiteListFields = (options) =>
     'config',
     'xsrfCookieName',
     'xsrfHeaderName',
+    'xTrackId',
     'timeout',
     options?.stack ? 'stack' : null,
     'responseTime',
-    // Custom field provided by axios interceptors: requestStartedAtInterceptor, requestLoggerInterceptor, errorLoggerInterceptor
+    // Custom field provided by axios interceptors
     'requestStartedAt',
   ].filter(Boolean);
 
