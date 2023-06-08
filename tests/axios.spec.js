@@ -109,17 +109,6 @@ describe('Tests "axios" Log format', () => {
         req: {
           baseURL: 'https://example.com',
           data: { data: { surname: 'Doe', name: 'John' }, product: 'someProduct' },
-          headers: {
-            'Content-type': 'application/json',
-            'X-Session': '1621448702.23937#Y8dbR/s1Wi3Wep830IUp8IoZDzz',
-            common: { Accept: 'application/json, text/plain, */*' },
-            delete: {},
-            get: {},
-            head: {},
-            patch: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            post: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            put: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          },
           method: 'post',
           requestStartedAt,
           xTrackId,
@@ -192,7 +181,7 @@ describe('Tests "axios" Log format', () => {
     });
 
     test('it should add axios response meta information in the info object', () => {
-      const info = axiosLogFormat().transform({ level, message: res }, { meta: true });
+      const info = axiosLogFormat().transform({ level, message: res }, { meta: true, headers: true });
 
       expect(info.level).toBe(level);
       expect(info.message).toBe(message);
@@ -230,7 +219,7 @@ describe('Tests "axios" Log format', () => {
 
     test('it should add axios response meta information in the info object at the custom "axios" meta key', () => {
       const metaKey = 'axios';
-      const info = axiosLogFormat().transform({ level, message: res }, { meta: true, metaKey });
+      const info = axiosLogFormat().transform({ level, message: res }, { meta: true, metaKey, headers: true });
 
       expect(info.level).toBe(level);
       expect(info.message).toBe(message);
@@ -289,13 +278,6 @@ describe('Tests "axios" Log format', () => {
         req: {
           baseURL: 'https://example.com',
           data: '{"product":"someProduct","data":{"name":"John","surname":"Doe"}}',
-          headers: {
-            Accept: 'application/json, text/plain, */*',
-            'Content-Length': 76,
-            'Content-Type': 'application/json',
-            'User-Agent': 'axios/0.21.1',
-            'X-Session': '1621448702.23937#Y8dbR/s1Wi3Wep830IUp8IoZDzz',
-          },
           method: 'post',
           requestStartedAt,
           url: '/',
@@ -303,12 +285,6 @@ describe('Tests "axios" Log format', () => {
           xsrfHeaderName: 'X-XSRF-TOKEN',
         },
         res: {
-          headers: {
-            connection: 'close',
-            'content-length': '3513',
-            'content-type': 'application/json',
-            date: 'Mon Feb 06 2023 13:35:00 GMT',
-          },
           responseTime: 100,
           status: 200,
           statusText: 'OK',
@@ -366,7 +342,7 @@ describe('Tests "axios" Log format', () => {
     });
 
     test('it should add axios error response meta information in the info object for response', () => {
-      const info = axiosLogFormat().transform(axiosError, { meta: true });
+      const info = axiosLogFormat().transform(axiosError, { meta: true, headers: true });
 
       expect(info.level).toBe(level);
       expect(info.message).toMatch(/GET http:\/\/localhost:1337\/uploads\/non-existent\.svg 404 Not Found (\d+)ms/);
@@ -406,7 +382,7 @@ describe('Tests "axios" Log format', () => {
           requestTraceId: 'test1234-request-id',
           timestamp: '2023-02-07 17:53:36.730',
         }),
-        { meta: true }
+        { meta: true, headers: true }
       );
 
       expect(info.level).toBe(level);
@@ -479,7 +455,7 @@ describe('Tests "axios" Log format', () => {
       });
 
       // 2. Act
-      const info = axiosLogFormat().transform(axiosError, { meta: true });
+      const info = axiosLogFormat().transform(axiosError, { meta: true, headers: true });
 
       // 3. Assert
       expect(info.level).toBe(level);
@@ -538,7 +514,7 @@ describe('Tests "axios" Log format', () => {
       });
 
       // 2. Act
-      const info = axiosLogFormat().transform(axiosError, { meta: true, stack: false });
+      const info = axiosLogFormat().transform(axiosError, { meta: true, headers: true, stack: false });
 
       // 3. Assert
       expect(info.level).toBe(level);
@@ -596,7 +572,7 @@ describe('Tests "axios" Log format', () => {
       });
 
       // 2. Act
-      const info = axiosLogFormat().transform(axiosError, { meta: true, stack: true });
+      const info = axiosLogFormat().transform(axiosError, { meta: true, headers: true, stack: true });
 
       // 3. Assert
       expect(info.level).toBe(level);

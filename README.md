@@ -32,7 +32,8 @@ const infotorgFormat = format.combine(
   axios({
     enabled: true,
     meta: true,
-    errorStack: true,
+    headers: true,
+    stack: true,
   }),
   description({ description: 'Your default description' }),
   // Configuration for the "filter" format
@@ -114,6 +115,7 @@ It accepts the following options:
 - **errorDescription**: Description for an Error. Default value is `Axios error`.
 - **meta**: Enable/disable including meta information about request/response/error. Default value is `false`.
 - **metaKey**: Key name for meta property. Default value is `meta`.
+- **headers**: If true, then request/response headers will be included in the meta. Default value is `true`.
 - **stack**: If true, then error stack trace will be included in the meta. Default value is `false`.
 
 > **IMPORTANT!** It should be applied as one of the first Infotorg custom formats in the combine pipeline.

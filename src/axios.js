@@ -59,7 +59,7 @@ const getWhiteListFields = (options) =>
     'baseURL',
     'method',
     'data',
-    'headers',
+    options?.headers ? 'headers' : null,
     'status',
     'statusText',
     // Exists for ECONNREFUSED, ECONNRESET, ENOTFOUND, etc.
@@ -121,7 +121,7 @@ const extractMeta = (data, reqOrResKey, whiteListFields) => {
 /**
  * Default axios format options.
  *
- * @type {Readonly<{stack: boolean, errorDescription: string, responseDescription: string, meta: boolean, metaKey: string, requestDescription: string, enabled: boolean}>}
+ * @type {Readonly<{headers: boolean, stack: boolean, errorDescription: string, responseDescription: string, meta: boolean, metaKey: string, requestDescription: string, enabled: boolean}>}
  */
 const defaultOptions = Object.freeze({
   enabled: true,
@@ -135,6 +135,8 @@ const defaultOptions = Object.freeze({
   meta: false,
   // Key name for meta property
   metaKey: 'meta',
+  // If true, then headers will be included in the meta
+  headers: true,
   // If true, then error stack trace will be included in the meta
   stack: false,
 });
@@ -152,7 +154,7 @@ const defaultOptions = Object.freeze({
  * @param {string} axiosInfo.level Log level. Required
  * @param {string|undefined} [axiosInfo.label=undefined] Log label. Optional
  *
- * @param {Object} [opts={meta: false, metaKey: 'meta', requestDescription: 'Axios request', responseDescription: 'Axios response', errorDescription: 'Axios error', stack: false}] Setting specific options to the current instance of the format. Example: { headers: true, meta: true, metaKey: 'meta', requestDescription: 'Axios request', responseDescription: 'Axios response', errorDescription: 'Axios error', stack: true }
+ * @param {Object} [opts={meta: false, metaKey: 'meta', requestDescription: 'Axios request', responseDescription: 'Axios response', errorDescription: 'Axios error', stack: false, headers: true}] Setting specific options to the current instance of the format. Example: { headers: true, meta: true, metaKey: 'meta', requestDescription: 'Axios request', responseDescription: 'Axios response', errorDescription: 'Axios error', stack: true }
  *
  * @param {string} [opts.enabled=true] Toggle axios format output.
  * @param {string} [opts.requestDescription='Axios request'] Description for a Request.
